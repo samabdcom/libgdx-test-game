@@ -2,12 +2,16 @@ package com.me.mygdxgame.view;
 
 import com.me.mygdxgame.model.Block;
 import com.me.mygdxgame.model.Bob;
+import com.me.mygdxgame.model.Bob.State;
 import com.me.mygdxgame.model.World;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
@@ -16,7 +20,8 @@ public class WorldRenderer {
 
 	private static final float CAMERA_WIDTH = 10f;
 	private static final float CAMERA_HEIGHT = 7f;
-
+	private static final float RUNNING_FRAME_DURATION = 0.06f;
+	
 	private World world;
 	private OrthographicCamera cam;
 
@@ -24,11 +29,17 @@ public class WorldRenderer {
 	ShapeRenderer debugRenderer = new ShapeRenderer();
 
 	/** Textures **/
-	private Texture bobTexture;
-	private Texture blockTexture;
-
+	private TextureRegion bobIdleLeft;
+	private TextureRegion bobIdleRight;
+	private TextureRegion blockTexture;
+	private TextureRegion bobFrame;
+	
+	/** Animations **/
+	private Animation walkLeftAnimation;
+	private Animation walkRightAnimation;
+	
 	private SpriteBatch spriteBatch;
-	private boolean debug = false; 
+	private boolean debug = false;
 	private int width;
 	private int height;
 	private float ppuX;	// pixels per unit on the X axis
@@ -39,7 +50,7 @@ public class WorldRenderer {
 		ppuX = (float)width / CAMERA_WIDTH;
 		ppuY = (float)height / CAMERA_HEIGHT;
 	}
-
+	
 	public WorldRenderer(World world, boolean debug) {
 		this.world = world;
 		this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -51,10 +62,27 @@ public class WorldRenderer {
 	}
 
 	private void loadTextures() {
-		bobTexture = new  Texture(Gdx.files.internal("data/images/bob_01.png"));
-		blockTexture = new Texture(Gdx.files.internal("data/images/block.png"));
-	}
+		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/images/textures/textures.pack"));
+		bobIdleLeft = atlas.findRegion("bob-01");
+		bobIdleRight = new TextureRegion(bobIdleLeft);
+		bobIdleRight.flip(true, false);
+		blockTexture = atlas.findRegion("block");
+		TextureRegion[] walkLeftFrames = new TextureRegion[5];
+		for (int i = 0; i < 5; i++) {
+			walkLeftFrames[i] = atlas.findRegion("bob-0" + (i + 2));
+		}
+		walkLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkLeftFrames);
 
+		TextureRegion[] walkRightFrames = new TextureRegion[5];
+
+		for (int i = 0; i < 5; i++) {
+			walkRightFrames[i] = new TextureRegion(walkLeftFrames[i]);
+			walkRightFrames[i].flip(true, false);
+		}
+		walkRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkRightFrames);
+	}
+	
+	
 	public void render() {
 		spriteBatch.begin();
 			drawBlocks();
@@ -64,6 +92,7 @@ public class WorldRenderer {
 			drawDebug();
 	}
 
+
 	private void drawBlocks() {
 		for (Block block : world.getBlocks()) {
 			spriteBatch.draw(blockTexture, block.getPosition().x * ppuX, block.getPosition().y * ppuY, Block.SIZE * ppuX, Block.SIZE * ppuY);
@@ -72,11 +101,15 @@ public class WorldRenderer {
 
 	private void drawBob() {
 		Bob bob = world.getBob();
-		spriteBatch.draw(bobTexture, bob.getPosition().x * ppuX, bob.getPosition().y * ppuY, Bob.SIZE * ppuX, Bob.SIZE * ppuY);
+		bobFrame = bob.isFacingLeft() ? bobIdleLeft : bobIdleRight;
+		if(bob.getState().equals(State.WALKING)) {
+			bobFrame = bob.isFacingLeft() ? walkLeftAnimation.getKeyFrame(bob.getStateTime(), true) : walkRightAnimation.getKeyFrame(bob.getStateTime(), true);
+		}
+		spriteBatch.draw(bobFrame, bob.getPosition().x * ppuX, bob.getPosition().y * ppuY, Bob.SIZE * ppuX, Bob.SIZE * ppuY);
 	}
 
 	private void drawDebug() {
-		// render blocks
+		/* rendering blocks */
 		debugRenderer.setProjectionMatrix(cam.combined);
 		debugRenderer.begin(ShapeType.Rectangle);
 		for (Block block : world.getBlocks()) {

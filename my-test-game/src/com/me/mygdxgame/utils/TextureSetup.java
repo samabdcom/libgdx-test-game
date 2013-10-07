@@ -1,4 +1,5 @@
 // It's generate textures
+// important note: dude, rename files that contain underscore "_"; replace it with "-"
 /*
 package com.me.mygdxgame.utils;
 import com.badlogic.gdx.tools.imagepacker.TexturePacker2;
