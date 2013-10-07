@@ -1,11 +1,11 @@
 package com.me.mygdxgame.screens;
 
-import com.me.mygdxgame.controller.WorldController;
+import com.me.mygdxgame.controller.BobController;
 import com.me.mygdxgame.model.World;
 import com.me.mygdxgame.view.WorldRenderer;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
@@ -15,15 +15,15 @@ public class GameScreen implements Screen, InputProcessor {
 
 	private World 			world;
 	private WorldRenderer 	renderer;
-	private WorldController	controller;
-
+	private BobController	controller;
+	
 	private int width, height;
-
+	
 	@Override
 	public void show() {
 		world = new World();
 		renderer = new WorldRenderer(world, false);
-		controller = new WorldController(world);
+		controller = new BobController(world);
 		Gdx.input.setInputProcessor(this);
 	}
 
@@ -35,7 +35,7 @@ public class GameScreen implements Screen, InputProcessor {
 		controller.update(delta);
 		renderer.render();
 	}
-
+	
 	@Override
 	public void resize(int width, int height) {
 		renderer.setSize(width, height);
@@ -88,6 +88,8 @@ public class GameScreen implements Screen, InputProcessor {
 			controller.jumpReleased();
 		if (keycode == Keys.X)
 			controller.fireReleased();
+		if (keycode == Keys.D)
+			renderer.setDebug(!renderer.isDebug());
 		return true;
 	}
 
@@ -99,7 +101,7 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
-		if (!Gdx.app.getType().equals(ApplicationType.Android)) 		// removed response to mouse
+		if (!Gdx.app.getType().equals(ApplicationType.Android))
 			return false;
 		if (x < width / 2 && y > height / 2) {
 			controller.leftPressed();
@@ -129,8 +131,7 @@ public class GameScreen implements Screen, InputProcessor {
 		return false;
 	}
 
-	@Override
-	public boolean mouseMoved(int x, int y) {
+	public boolean touchMoved(int x, int y) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -140,4 +141,12 @@ public class GameScreen implements Screen, InputProcessor {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+
 }

@@ -39,6 +39,12 @@ public class Bob {
 	public Vector2 getPosition() {
 		return position;
 	}
+	
+	public void setPosition(Vector2 position) {
+		this.position = position;
+		this.bounds.setX(position.x);
+		this.bounds.setY(position.y);
+	}
 
 	public Vector2 getAcceleration() {
 		return acceleration;
