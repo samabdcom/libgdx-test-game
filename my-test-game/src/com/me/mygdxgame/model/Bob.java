@@ -9,10 +9,8 @@ public class Bob {
 		IDLE, WALKING, JUMPING, DYING
 	}
 	
-	public static final float SPEED = 4f;	// unit per second
-	public static final float JUMP_VELOCITY = 4f;
 	public static final float SIZE = 0.5f; // half a unit
-	
+
 	Vector2 	position = new Vector2();
 	Vector2 	acceleration = new Vector2();
 	Vector2 	velocity = new Vector2();
@@ -20,9 +18,12 @@ public class Bob {
 	State		state = State.IDLE;
 	boolean		facingLeft = true;
 	float		stateTime = 0;
+	boolean		longJump = false;
 
 	public Bob(Vector2 position) {
 		this.position = position;
+		this.bounds.x = position.x;
+		this.bounds.y = position.y;
 		this.bounds.height = SIZE;
 		this.bounds.width = SIZE;
 	}
@@ -38,12 +39,6 @@ public class Bob {
 
 	public Vector2 getPosition() {
 		return position;
-	}
-	
-	public void setPosition(Vector2 position) {
-		this.position = position;
-		this.bounds.setX(position.x);
-		this.bounds.setY(position.y);
 	}
 
 	public Vector2 getAcceleration() {
@@ -70,10 +65,48 @@ public class Bob {
 		return stateTime;
 	}
 
+	public boolean isLongJump() {
+		return longJump;
+	}
+
+
+	public void setLongJump(boolean longJump) {
+		this.longJump = longJump;
+	}
+
+
+	public void setPosition(Vector2 position) {
+		this.position = position;
+		this.bounds.setX(position.x);
+		this.bounds.setY(position.y);
+	}
+
+
+	public void setAcceleration(Vector2 acceleration) {
+		this.acceleration = acceleration;
+	}
+
+
+	public void setVelocity(Vector2 velocity) {
+		this.velocity = velocity;
+	}
+
+
+	public void setBounds(Rectangle bounds) {
+		this.bounds = bounds;
+	}
+
+
+	public void setStateTime(float stateTime) {
+		this.stateTime = stateTime;
+	}
+
 
 	public void update(float delta) {
-		stateTime += delta;
-		position.add(velocity.tmp().mul(delta)); 
+//		position.add(velocity.tmp().mul(delta));
+//		bounds.x = position.x;
+//		bounds.y = position.y;
+		stateTime += delta;		
 	}
 	
 }

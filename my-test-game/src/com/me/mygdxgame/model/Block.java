@@ -11,6 +11,8 @@ public class Block {
 	Rectangle	bounds = new Rectangle();
 	
 	public Block(Vector2 pos) {
+		this.bounds.x = pos.x;
+		this.bounds.y = pos.y;
 		this.position = pos;
 		this.bounds.width = SIZE;
 		this.bounds.height = SIZE;
